@@ -1,5 +1,6 @@
 /* global SBA */
 import Businesses from './Businesses.vue';
+import BusinessProfile from './BusinessProfile.vue';
 
 SBA.use({
   install({ viewRegistry }) {
@@ -11,6 +12,13 @@ SBA.use({
       group: 'maintenance',
       component: Businesses,
       order: 5000
+    });
+
+    viewRegistry.addView({
+      name: 'instances/business-profile',
+      parent: 'instances',
+      path: 'businesses/:businessId',
+      component: BusinessProfile
     });
   }
 });
