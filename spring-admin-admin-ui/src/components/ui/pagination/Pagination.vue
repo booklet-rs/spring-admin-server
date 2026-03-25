@@ -1,12 +1,9 @@
 <script setup>
 import { computed } from 'vue'
-import { useForwardProps } from 'radix-vue'
 import { ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight } from 'lucide-vue-next'
-import { PaginationRoot, useForwardPropsEmits } from 'radix-vue'
-import { cn } from '@/lib/utils'
 
 const props = defineProps({
-  page: { type: Number, default: 1 },
+  page: { type: Number, default: 0 },
   pageSize: { type: Number, default: 10 },
   total: { type: Number, default: 0 },
   siblingCount: { type: Number, default: 1 },
@@ -16,28 +13,30 @@ const props = defineProps({
 const emit = defineEmits(['update:page', 'update:pageSize'])
 
 const totalPages = computed(() => Math.ceil(props.total / props.pageSize))
+const currentPage = computed(() => props.page + 1)
 
 const handlePageChange = (newPage) => {
   if (newPage >= 1 && newPage <= totalPages.value) {
-    emit('update:page', newPage)
+    emit('update:page', newPage - 1)
   }
 }
 
 const handlePageSizeChange = (event) => {
   emit('update:pageSize', Number(event.target.value))
-  emit('update:page', 1)
+  emit('update:page', 0)
 }
 
 const pages = computed(() => {
-  const pages = []
+  const result = []
   for (let i = 1; i <= totalPages.value; i++) {
-    pages.push(i)
+    result.push(i)
   }
-  return pages
+  return result
 })
 
 const visiblePages = computed(() => {
-  const { page, siblingCount } = props
+  const page = currentPage.value
+  const { siblingCount } = props
   const total = totalPages.value
   
   if (total <= 7) return pages.value
@@ -49,7 +48,7 @@ const visiblePages = computed(() => {
     return [...Array.from({ length: 5 }, (_, i) => i + 1), '...', total]
   }
   
-  if (right >= total-1) {
+  if (right >= total - 1) {
     return [1, '...', ...Array.from({ length: 5 }, (_, i) => total - 4 + i)]
   }
   
@@ -73,15 +72,15 @@ const visiblePages = computed(() => {
     <div class="flex items-center gap-1">
       <button
         class="inline-flex h-8 w-8 items-center justify-center rounded-md text-sm disabled:opacity-50 hover:bg-gray-100 disabled:cursor-not-allowed"
-        :disabled="page === 1"
+        :disabled="page === 0"
         @click="handlePageChange(1)"
       >
         <ChevronsLeft class="h-4 w-4"/>
       </button>
       <button
         class="inline-flex h-8 w-8 items-center justify-center rounded-md text-sm disabled:opacity-50 hover:bg-gray-100 disabled:cursor-not-allowed"
-        :disabled="page === 1"
-        @click="handlePageChange(page - 1)"
+        :disabled="page === 0"
+        @click="handlePageChange(currentPage - 1)"
       >
         <ChevronLeft class="h-4 w-4"/>
       </button>
@@ -91,7 +90,7 @@ const visiblePages = computed(() => {
         <button
           v-else
           class="inline-flex h-8 w-8 items-center justify-center rounded-md text-sm hover:bg-gray-100"
-          :class="{ 'bg-gray-900 text-white hover:bg-gray-900': p === page }"
+          :class="{ 'bg-gray-200 font-semibold': p === currentPage }"
           @click="handlePageChange(p)"
         >
           {{ p }}
@@ -100,14 +99,14 @@ const visiblePages = computed(() => {
       
       <button
         class="inline-flex h-8 w-8 items-center justify-center rounded-md text-sm disabled:opacity-50 hover:bg-gray-100 disabled:cursor-not-allowed"
-        :disabled="page === totalPages"
-        @click="handlePageChange(page + 1)"
+        :disabled="page >= totalPages - 1"
+        @click="handlePageChange(currentPage + 1)"
       >
         <ChevronRight class="h-4 w-4"/>
       </button>
       <button
         class="inline-flex h-8 w-8 items-center justify-center rounded-md text-sm disabled:opacity-50 hover:bg-gray-100 disabled:cursor-not-allowed"
-        :disabled="page === totalPages"
+        :disabled="page >= totalPages - 1"
         @click="handlePageChange(totalPages)"
       >
         <ChevronsRight class="h-4 w-4"/>
