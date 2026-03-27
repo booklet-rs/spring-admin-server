@@ -35,3 +35,4 @@ build/
 ### Node ###
 node_modules/
 spring-admin-admin-ui/node_modules/
+spring-admin-admin-ui/node/node
