@@ -1,0 +1,33 @@
+{
+  "branches": ["master"],
+  "plugins": [
+    "@semantic-release/commit-analyzer",
+    "@semantic-release/release-notes-generator",
+    "@semantic-release/changelog",
+    [
+      "@semantic-release/exec",
+      {
+        "prepareCmd": "./mvnw versions:set -DnewVersion=${nextRelease.version} -DgenerateBackupPoms=false -DprocessAllModules=true",
+        "publishCmd": "./mvnw clean package -DskipTests"
+      }
+    ],
+    [
+      "@semantic-release/github",
+      {
+        "assets": [
+          {
+            "path": "spring-admin-server-app/target/spring-admin-server-app-*.jar",
+            "label": "Spring Admin Server"
+          }
+        ]
+      }
+    ],
+    [
+      "@semantic-release/git",
+      {
+        "assets": ["pom.xml", "spring-admin-server-app/pom.xml", "spring-admin-admin-ui/pom.xml", "CHANGELOG.md"],
+        "message": "Release: ${nextRelease.version} [skip ci]\n\n${nextRelease.notes}"
+      }
+    ]
+  ]
+}
