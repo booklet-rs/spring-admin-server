@@ -2,6 +2,7 @@
 import Businesses from './Businesses.vue';
 import BusinessProfile from './BusinessProfile.vue';
 import MedicalReports from './MedicalReports.vue';
+import Patients from './Patients.vue';
 
 SBA.use({
   install({ viewRegistry }) {
@@ -30,6 +31,16 @@ SBA.use({
       group: 'Maintenance',
       component: MedicalReports,
       order: 5100
+    });
+
+    viewRegistry.addView({
+      name: 'instances/patients',
+      parent: 'instances',
+      path: 'businesses/:businessId/patients',
+      label: 'Patients',
+      group: 'Maintenance',
+      component: Patients,
+      order: 5200
     });
   }
 });

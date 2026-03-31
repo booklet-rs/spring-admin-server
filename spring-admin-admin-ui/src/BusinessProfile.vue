@@ -103,6 +103,13 @@
             <h4 class="text-lg font-semibold text-gray-900">Medical Reports</h4>
             <p class="text-sm text-gray-500 mt-1">View and manage medical reports</p>
           </router-link>
+          <router-link 
+            :to="`${business.businessId}/patients`"
+            class="block p-6 bg-white border border-gray-200 rounded-lg shadow hover:bg-gray-50 transition-colors"
+          >
+            <h4 class="text-lg font-semibold text-gray-900">Patients</h4>
+            <p class="text-sm text-gray-500 mt-1">View and manage patients</p>
+          </router-link>
         </div>
       </section>
     </div>
