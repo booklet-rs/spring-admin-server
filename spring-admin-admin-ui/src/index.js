@@ -1,6 +1,7 @@
 /* global SBA */
 import Businesses from './Businesses.vue';
 import BusinessProfile from './BusinessProfile.vue';
+import ClinicMigration from './ClinicMigration.vue';
 import MedicalReports from './MedicalReports.vue';
 import Patients from './Patients.vue';
 
@@ -19,7 +20,9 @@ SBA.use({
     viewRegistry.addView({
       name: 'instances/business-profile',
       parent: 'instances',
+      label: 'Business Profile',
       path: 'businesses/:businessId',
+      group: 'Maintenance',
       component: BusinessProfile
     });
 
@@ -41,6 +44,15 @@ SBA.use({
       group: 'Maintenance',
       component: Patients,
       order: 5200
+    });
+
+    viewRegistry.addView({
+      name: 'instances/clinic-migration',
+      parent: 'instances',
+      path: 'businesses/:businessId/clinic-migration',
+      label: 'Clinic Migration',
+      group: 'Maintenance',
+      component: ClinicMigration
     });
   }
 });
