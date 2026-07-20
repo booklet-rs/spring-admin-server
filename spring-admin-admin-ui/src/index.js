@@ -3,6 +3,7 @@ import Businesses from './Businesses.vue';
 import BusinessProfile from './BusinessProfile.vue';
 import ClinicMigration from './ClinicMigration.vue';
 import MedicalReports from './MedicalReports.vue';
+import Employees from './Employees.vue';
 import Patients from './Patients.vue';
 
 SBA.use({
@@ -44,6 +45,16 @@ SBA.use({
       group: 'Maintenance',
       component: Patients,
       order: 5200
+    });
+
+    viewRegistry.addView({
+      name: 'instances/employees',
+      parent: 'instances',
+      path: 'businesses/:businessId/employees',
+      label: 'Employees',
+      group: 'Maintenance',
+      component: Employees,
+      order: 5300
     });
 
     viewRegistry.addView({
