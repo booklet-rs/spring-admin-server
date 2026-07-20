@@ -1,0 +1,9 @@
+#!/bin/sh
+
+set -eu
+
+repo_dir=$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)
+cd "$repo_dir"
+
+./mvnw -pl spring-admin-admin-ui install -DskipTests
+exec ./mvnw -f spring-admin-server-app/pom.xml spring-boot:run

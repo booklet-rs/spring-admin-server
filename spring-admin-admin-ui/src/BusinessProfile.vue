@@ -96,19 +96,26 @@
       <section class="py-6">
         <h3 class="text-lg font-bold mb-4">Data</h3>
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 lg:mx-12">
-          <router-link 
+          <router-link
             :to="`${business.businessId}/medical-reports`"
             class="block p-6 bg-white border border-gray-200 rounded-lg shadow hover:bg-gray-50 transition-colors"
           >
             <h4 class="text-lg font-semibold text-gray-900">Medical Reports</h4>
             <p class="text-sm text-gray-500 mt-1">View and manage medical reports</p>
           </router-link>
-          <router-link 
+          <router-link
             :to="`${business.businessId}/patients`"
             class="block p-6 bg-white border border-gray-200 rounded-lg shadow hover:bg-gray-50 transition-colors"
           >
             <h4 class="text-lg font-semibold text-gray-900">Patients</h4>
             <p class="text-sm text-gray-500 mt-1">View and manage patients</p>
+          </router-link>
+          <router-link
+            :to="`${business.businessId}/employees`"
+            class="block p-6 bg-white border border-gray-200 rounded-lg shadow hover:bg-gray-50 transition-colors"
+          >
+            <h4 class="text-lg font-semibold text-gray-900">Employees</h4>
+            <p class="text-sm text-gray-500 mt-1">View and validate employees</p>
           </router-link>
           <router-link 
             :to="`${business.businessId}/clinic-migration`"
