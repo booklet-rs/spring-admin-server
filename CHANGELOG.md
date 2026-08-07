@@ -1,3 +1,10 @@
+## [1.0.3](https://github.com/booklet-rs/spring-admin-server/compare/v1.0.2...v1.0.3) (2026-08-07)
+
+
+### Bug Fixes
+
+* support epoch timestamps for medical reports ([e7ae007](https://github.com/booklet-rs/spring-admin-server/commit/e7ae0074e12ee455119200537a34777701274ece))
+
 ## [1.0.2](https://github.com/booklet-rs/spring-admin-server/compare/v1.0.1...v1.0.2) (2026-07-20)
 
 
