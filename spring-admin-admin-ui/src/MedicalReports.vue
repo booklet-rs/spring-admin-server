@@ -285,7 +285,8 @@ export default {
     },
     formatDateTime(dateTime) {
       if (!dateTime) return '—'
-      return new Date(dateTime).toLocaleString()
+      const milliseconds = typeof dateTime === 'number' ? dateTime * 1000 : dateTime
+      return new Date(milliseconds).toLocaleString()
     }
   }
 }
