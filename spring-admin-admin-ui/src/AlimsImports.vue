@@ -16,6 +16,15 @@
           <p>This run needs operator attention. Later runs cannot advance until it is resolved.</p>
           <div class="flex shrink-0 gap-2">
             <button
+              v-if="run.status === 'REVIEW_REQUIRED'"
+              class="px-4 py-2 rounded-md text-white text-sm font-medium shadow-sm disabled:opacity-50"
+              style="background-color: #16a34a"
+              :disabled="isPublishing"
+              @click="openPublishDialog"
+            >
+              ✓ Publish run
+            </button>
+            <button
               v-if="run.status === 'FAILED'"
               class="px-4 py-2 rounded-md text-white text-sm font-medium shadow-sm disabled:opacity-50"
               style="background-color: #ea580c"
@@ -106,6 +115,59 @@
 
     <div v-else-if="hasLoaded" class="py-12 text-center text-gray-500">
       No ALIMS import runs exist yet. The nightly import has not captured a snapshot.
+    </div>
+
+    <div v-if="showPublishDialog" class="fixed inset-0 z-50 flex items-center justify-center bg-black/50" @keydown.esc="closePublishDialog">
+      <div class="bg-white rounded-lg shadow-xl max-w-lg w-full mx-4 p-6">
+        <h3 class="text-lg font-bold">Publish reviewed ALIMS catalog</h3>
+        <p class="text-sm text-gray-600 mt-2">
+          The reviewed additions, metadata changes, and JKL changes are applied to the serving
+          catalog in one transaction. Existing therapy snapshots stay unchanged.
+        </p>
+        <p class="text-sm font-mono mt-3 bg-gray-100 rounded p-2 break-all">{{ run?.runId }}</p>
+
+        <div v-if="largeDropWarning" class="mt-4 p-4 rounded-md bg-red-100 border-2 border-red-600">
+          <p class="text-base font-black text-red-800 uppercase tracking-wide">⚠ Large product drop detected</p>
+          <p class="text-sm text-red-900 mt-2 font-medium">
+            {{ largeDropWarning.missingProductCount }} of {{ largeDropWarning.catalogProductCount }}
+            catalog products are missing from this run ({{ largeDropWarning.missingProductShare }}).
+            The configured limit is {{ largeDropWarning.maximumMissingProductShare }}.
+          </p>
+          <p class="text-sm text-red-900 mt-2">
+            Publishing will keep these products but mark them absent from ALIMS. Verify with the
+            source that this drop is expected before proceeding.
+          </p>
+          <label class="block text-sm font-semibold text-red-900 mt-3">
+            Paste the exact warning text below to confirm you understand the risk:
+          </label>
+          <p class="text-xs font-mono mt-1 p-2 rounded bg-red-50 border border-red-300 text-red-900 break-all select-all">
+            {{ largeDropWarning.expectedAcknowledgement }}
+          </p>
+          <textarea
+            v-model="largeDropAcknowledgementInput"
+            class="mt-2 w-full h-20 rounded-md border-2 border-red-400 px-3 py-2 text-sm font-mono focus:outline-none focus:ring-2 focus:ring-red-600"
+            placeholder="Type or paste the warning text here"
+          ></textarea>
+        </div>
+
+        <p v-if="publishError" class="text-sm text-red-600 mt-3">{{ publishError }}</p>
+        <div class="flex justify-end gap-2 mt-4">
+          <button
+            class="px-4 py-2 rounded-md border border-gray-300 text-sm font-medium hover:bg-gray-50"
+            @click="closePublishDialog"
+          >
+            Cancel
+          </button>
+          <button
+            class="px-4 py-2 rounded-md text-white text-sm font-medium disabled:opacity-50"
+            style="background-color: #dc2626"
+            :disabled="isPublishing || (largeDropWarning && !largeDropAcknowledged)"
+            @click="confirmPublish"
+          >
+            {{ isPublishing ? 'Publishing…' : (largeDropWarning ? 'Publish anyway' : 'Confirm publish') }}
+          </button>
+        </div>
+      </div>
     </div>
 
     <div v-if="showRetryDialog" class="fixed inset-0 z-50 flex items-center justify-center bg-black/50" @keydown.esc="closeRetryDialog">
@@ -207,6 +269,11 @@ export default {
     showRetryDialog: false,
     retryError: null,
     isRetrying: false,
+    showPublishDialog: false,
+    publishError: null,
+    isPublishing: false,
+    largeDropWarning: null,
+    largeDropAcknowledgementInput: '',
     successMessage: null
   }),
   computed: {
@@ -274,6 +341,56 @@ export default {
         this.skipError = error.response?.data?.message || 'The skip command was refused.'
       } finally {
         this.isSkipping = false
+      }
+    },
+    openPublishDialog() {
+      this.publishError = null
+      this.largeDropWarning = null
+      this.largeDropAcknowledgementInput = ''
+      this.showPublishDialog = true
+    },
+    closePublishDialog() {
+      this.showPublishDialog = false
+      this.publishError = null
+      this.largeDropWarning = null
+      this.largeDropAcknowledgementInput = ''
+    },
+    largeDropAcknowledged() {
+      return this.largeDropWarning != null &&
+        this.largeDropAcknowledgementInput.trim() === this.largeDropWarning.expectedAcknowledgement
+    },
+    async confirmPublish() {
+      this.isPublishing = true
+      this.publishError = null
+      try {
+        const response = await this.instance.axios.post(
+          `actuator/alims-import-runs/${this.run.runId}/publish`,
+          this.largeDropAcknowledged()
+            ? { acknowledgement: this.largeDropWarning.expectedAcknowledgement }
+            : {}
+        )
+        this.run = response.data
+        this.showPublishDialog = false
+        this.successMessage = 'Run published. The serving catalog is updated.'
+        setTimeout(() => { this.successMessage = null }, 5000)
+        await this.fetchRun()
+        await this.fetchRun()
+      } catch (error) {
+        const warning = error.response?.data
+        if (
+          error.response?.status === 409 &&
+          warning?.code === 'ALIMS_LARGE_MISSING_SHARE_ACKNOWLEDGEMENT_REQUIRED'
+        )
+        {
+          this.largeDropWarning = warning
+          this.largeDropAcknowledgementInput = ''
+        }
+        else
+        {
+          this.publishError = error.response?.data?.message || 'The publish command was refused.'
+        }
+      } finally {
+        this.isPublishing = false
       }
     },
     openRetryDialog() {
