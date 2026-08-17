@@ -14,13 +14,24 @@
       <div v-if="needsAttention(run.status)" class="mt-4 p-4 rounded-md bg-amber-50 border border-amber-200 text-amber-800">
         <div class="flex items-center justify-between gap-4">
           <p>This run needs operator attention. Later runs cannot advance until it is resolved.</p>
-          <button
-            class="shrink-0 px-4 py-2 rounded-md bg-red-600 text-white text-sm font-medium hover:bg-red-700 disabled:opacity-50"
-            :disabled="isSkipping"
-            @click="openSkipDialog"
-          >
-            Skip run
-          </button>
+          <div class="flex shrink-0 gap-2">
+            <button
+              v-if="run.status === 'FAILED'"
+              class="px-4 py-2 rounded-md text-white text-sm font-medium shadow-sm disabled:opacity-50"
+              style="background-color: #ea580c"
+              :disabled="isRetrying"
+              @click="openRetryDialog"
+            >
+              ↻ Retry run
+            </button>
+            <button
+              class="px-4 py-2 rounded-md bg-red-600 text-white text-sm font-medium hover:bg-red-700 disabled:opacity-50"
+              :disabled="isSkipping"
+              @click="openSkipDialog"
+            >
+              Skip run
+            </button>
+          </div>
         </div>
       </div>
 
@@ -97,6 +108,35 @@
       No ALIMS import runs exist yet. The nightly import has not captured a snapshot.
     </div>
 
+    <div v-if="showRetryDialog" class="fixed inset-0 z-50 flex items-center justify-center bg-black/50" @keydown.esc="closeRetryDialog">
+      <div class="bg-white rounded-lg shadow-xl max-w-lg w-full mx-4 p-6">
+        <h3 class="text-lg font-bold">Retry failed ALIMS import run</h3>
+        <p class="text-sm text-gray-600 mt-2">
+          The retry replays the exact saved ALIMS response with the currently deployed parser. It
+          never fetches new source data and changes no serving catalog until the run passes review
+          and is published.
+        </p>
+        <p class="text-sm font-mono mt-3 bg-gray-100 rounded p-2 break-all">{{ run?.runId }}</p>
+        <p v-if="retryError" class="text-sm text-red-600 mt-2">{{ retryError }}</p>
+        <div class="flex justify-end gap-2 mt-4">
+          <button
+            class="px-4 py-2 rounded-md border border-gray-300 text-sm font-medium hover:bg-gray-50"
+            @click="closeRetryDialog"
+          >
+            Cancel
+          </button>
+          <button
+            class="px-4 py-2 rounded-md text-white text-sm font-medium disabled:opacity-50"
+            style="background-color: #ea580c"
+            :disabled="isRetrying"
+            @click="confirmRetry"
+          >
+            {{ isRetrying ? 'Retrying…' : 'Confirm retry' }}
+          </button>
+        </div>
+      </div>
+    </div>
+
     <div v-if="showSkipDialog" class="fixed inset-0 z-50 flex items-center justify-center bg-black/50" @keydown.esc="closeSkipDialog">
       <div class="bg-white rounded-lg shadow-xl max-w-lg w-full mx-4 p-6">
         <h3 class="text-lg font-bold">Skip ALIMS import run</h3>
@@ -164,6 +204,9 @@ export default {
     skipReason: '',
     skipError: null,
     isSkipping: false,
+    showRetryDialog: false,
+    retryError: null,
+    isRetrying: false,
     successMessage: null
   }),
   computed: {
@@ -231,6 +274,33 @@ export default {
         this.skipError = error.response?.data?.message || 'The skip command was refused.'
       } finally {
         this.isSkipping = false
+      }
+    },
+    openRetryDialog() {
+      this.retryError = null
+      this.showRetryDialog = true
+    },
+    closeRetryDialog() {
+      this.showRetryDialog = false
+      this.retryError = null
+    },
+    async confirmRetry() {
+      this.isRetrying = true
+      this.retryError = null
+      try {
+        const response = await this.instance.axios.post(
+          `actuator/alims-import-runs/${this.run.runId}/retry`,
+          null,
+          { params: { confirmed: true } }
+        )
+        this.run = response.data
+        this.showRetryDialog = false
+        this.successMessage = `Retry finished. Run is now ${response.data.status}.`
+        setTimeout(() => { this.successMessage = null }, 5000)
+      } catch (error) {
+        this.retryError = error.response?.data?.message || 'The retry command was refused.'
+      } finally {
+        this.isRetrying = false
       }
     },
     needsAttention(status) {
