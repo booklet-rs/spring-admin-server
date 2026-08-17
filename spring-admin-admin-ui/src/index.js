@@ -5,6 +5,8 @@ import ClinicMigration from './ClinicMigration.vue';
 import MedicalReports from './MedicalReports.vue';
 import Employees from './Employees.vue';
 import Patients from './Patients.vue';
+import AlimsImports from './AlimsImports.vue';
+import AlimsImportRun from './AlimsImportRun.vue';
 
 SBA.use({
   install({ viewRegistry }) {
@@ -64,6 +66,23 @@ SBA.use({
       label: 'Clinic Migration',
       group: 'Maintenance',
       component: ClinicMigration
+    });
+
+    viewRegistry.addView({
+      name: 'instances/alims-imports',
+      parent: 'instances',
+      path: 'alims-imports',
+      label: 'ALIMS Imports',
+      group: 'Maintenance',
+      component: AlimsImports,
+      order: 5400
+    });
+
+    viewRegistry.addView({
+      name: 'instances/alims-import-run',
+      parent: 'instances',
+      path: 'alims-imports/:runId',
+      component: AlimsImportRun
     });
   }
 });
