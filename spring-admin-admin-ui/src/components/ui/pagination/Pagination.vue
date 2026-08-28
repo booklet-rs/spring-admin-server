@@ -63,7 +63,7 @@ const visiblePages = computed(() => {
       <select
         :value="pageSize"
         @change="handlePageSizeChange"
-        class="h-8 rounded-md border border-gray-300 bg-white px-2 text-sm"
+        class="h-8 rounded-md border border-gray-300 bg-white pl-3 pr-8 text-sm"
       >
         <option v-for="size in [10, 20, 50, 100]" :key="size" :value="size">{{ size }}</option>
       </select>

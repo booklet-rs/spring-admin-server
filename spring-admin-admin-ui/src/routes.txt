@@ -1,1 +1,2 @@
 /businesses/**
+/alims-imports/**
