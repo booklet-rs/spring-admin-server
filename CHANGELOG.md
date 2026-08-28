@@ -1,3 +1,12 @@
+# [1.1.0](https://github.com/booklet-rs/spring-admin-server/compare/v1.0.3...v1.1.0) (2026-08-28)
+
+
+### Features
+
+* add ALIMS import runs monitoring view ([3b5b487](https://github.com/booklet-rs/spring-admin-server/commit/3b5b48776fd77cd5a0b8cec4a4a70b92cc85c490))
+* add retry action for failed ALIMS import runs ([a5bf6d1](https://github.com/booklet-rs/spring-admin-server/commit/a5bf6d1fa586c06aaf78935dadcc9129461ab62b))
+* publish reviewed ALIMS runs with large-drop acknowledgement ([c2cdf8b](https://github.com/booklet-rs/spring-admin-server/commit/c2cdf8bef09eb46c58005f6eec3e834d9f65c027))
+
 ## [1.0.3](https://github.com/booklet-rs/spring-admin-server/compare/v1.0.2...v1.0.3) (2026-08-07)
 
 
