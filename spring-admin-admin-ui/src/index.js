@@ -7,6 +7,7 @@ import Employees from './Employees.vue';
 import Patients from './Patients.vue';
 import AlimsImports from './AlimsImports.vue';
 import AlimsImportRun from './AlimsImportRun.vue';
+import NitesSynchronization from './NitesSynchronization.vue';
 
 SBA.use({
   install({ viewRegistry }) {
@@ -83,6 +84,16 @@ SBA.use({
       parent: 'instances',
       path: 'alims-imports/:runId',
       component: AlimsImportRun
+    });
+
+    viewRegistry.addView({
+      name: 'instances/nites-synchronization',
+      parent: 'instances',
+      path: 'nites-synchronization',
+      label: 'NITES Synchronization',
+      group: 'Maintenance',
+      component: NitesSynchronization,
+      order: 5500
     });
   }
 });
