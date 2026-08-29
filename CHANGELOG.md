@@ -1,3 +1,15 @@
+# [1.2.0](https://github.com/booklet-rs/spring-admin-server/compare/v1.1.0...v1.2.0) (2026-08-29)
+
+
+### Bug Fixes
+
+* Merge pull request [#4](https://github.com/booklet-rs/spring-admin-server/issues/4) from booklet-rs/feature/nites-synchronization-admin ([8cb1b1e](https://github.com/booklet-rs/spring-admin-server/commit/8cb1b1ea7823477c2d606b9a2e96b9f5561d71cf))
+
+
+### Features
+
+* trigger NITES synchronization from admin ([5572479](https://github.com/booklet-rs/spring-admin-server/commit/5572479a290f923136564b49cbff7613c6889941))
+
 # [1.1.0](https://github.com/booklet-rs/spring-admin-server/compare/v1.0.3...v1.1.0) (2026-08-28)
 
 
