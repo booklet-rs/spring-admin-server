@@ -1,15 +1,30 @@
 <template>
   <sba-instance-section :error="error" :loading="!hasLoaded">
-    <div v-if="run" class="px-12">
+    <div class="px-12">
       <div class="flex items-center justify-between py-4 border-b border-gray-400">
         <div>
           <h2 class="text-xl font-bold">ALIMS Import Runs</h2>
-          <p class="text-sm text-gray-500 mt-1 font-mono">{{ run.runId }}</p>
+          <p v-if="run" class="text-sm text-gray-500 mt-1 font-mono">{{ run.runId }}</p>
         </div>
-        <span class="px-3 py-1 rounded-full text-sm" :class="statusClass(run.status)">
-          {{ run.status }}
-        </span>
+        <div class="flex items-center gap-3">
+          <span v-if="run" class="px-3 py-1 rounded-full text-sm" :class="statusClass(run.status)">
+            {{ run.status }}
+          </span>
+          <button
+            class="px-4 py-2 rounded-md bg-blue-600 text-white text-sm font-medium hover:bg-blue-700 disabled:opacity-50"
+            :disabled="isTriggering"
+            @click="triggerImport"
+          >
+            {{ isTriggering ? 'Capturing…' : 'Capture now' }}
+          </button>
+        </div>
       </div>
+
+      <p v-if="triggerError" class="mt-4 p-3 rounded-md bg-red-50 border border-red-200 text-sm text-red-700">
+        {{ triggerError }}
+      </p>
+
+      <template v-if="run">
 
       <div v-if="needsAttention(run.status)" class="mt-4 p-4 rounded-md bg-amber-50 border border-amber-200 text-amber-800">
         <div class="flex items-center justify-between gap-4">
@@ -111,10 +126,11 @@
           No diff was generated for this run.
         </p>
       </section>
-    </div>
+      </template>
 
-    <div v-else-if="hasLoaded" class="py-12 text-center text-gray-500">
-      No ALIMS import runs exist yet. The nightly import has not captured a snapshot.
+      <div v-else-if="hasLoaded" class="py-12 text-center text-gray-500">
+        No ALIMS import runs exist yet. Capture one now or wait for the nightly import.
+      </div>
     </div>
 
     <div v-if="showPublishDialog" class="fixed inset-0 z-50 flex items-center justify-center bg-black/50" @keydown.esc="closePublishDialog">
@@ -274,6 +290,8 @@ export default {
     isPublishing: false,
     largeDropWarning: null,
     largeDropAcknowledgementInput: '',
+    isTriggering: false,
+    triggerError: null,
     successMessage: null
   }),
   computed: {
@@ -302,6 +320,20 @@ export default {
     await this.fetchRun()
   },
   methods: {
+    async triggerImport() {
+      this.isTriggering = true
+      this.triggerError = null
+      try {
+        await this.instance.axios.post('actuator/alims-import-runs')
+        this.successMessage = 'ALIMS import finished. The latest available run is shown.'
+        setTimeout(() => { this.successMessage = null }, 5000)
+        await this.fetchRun()
+      } catch (error) {
+        this.triggerError = error.response?.data?.message || 'The ALIMS import could not be started.'
+      } finally {
+        this.isTriggering = false
+      }
+    },
     async fetchRun() {
       this.hasLoaded = false
       this.error = null
