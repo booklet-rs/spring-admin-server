@@ -1,3 +1,15 @@
+# [1.3.0](https://github.com/booklet-rs/spring-admin-server/compare/v1.2.0...v1.3.0) (2026-08-29)
+
+
+### Bug Fixes
+
+* Merge pull request [#5](https://github.com/booklet-rs/spring-admin-server/issues/5) from booklet-rs/feature/alims-manual-capture ([a8c3ea2](https://github.com/booklet-rs/spring-admin-server/commit/a8c3ea2a1dce0f86aa36035d9799eb96a802d361))
+
+
+### Features
+
+* trigger ALIMS imports from admin ([d898225](https://github.com/booklet-rs/spring-admin-server/commit/d8982255fb6fdd3c6a128964cb4581148648d1f3))
+
 # [1.2.0](https://github.com/booklet-rs/spring-admin-server/compare/v1.1.0...v1.2.0) (2026-08-29)
 
 
